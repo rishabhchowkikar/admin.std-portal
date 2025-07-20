@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { useAppDispatch } from '@/app/lib/hook';
 import { logout } from '@/app/lib/authSlice';
 import { useRouter } from 'next/navigation';
+import { isTeacher, isAdmin } from '@/app/lib/authSlice';
 
 // Navigation items configuration
 const teacherNavItems = [
@@ -91,10 +92,10 @@ export default function Sidebar() {
     const { user } = useAppSelector((state) => state.auth);
 
     // Select navigation items based on user role
-    const navItems = user?.role === 'admin' ? adminNavItems : teacherNavItems;
+    const navItems = isAdmin(user) ? adminNavItems : teacherNavItems;
 
     // Get display name based on user type
-    const displayName = user?.role === 'teacher' ? (user as any).name : user?.email;
+    const displayName = isTeacher(user) ? user.name : user?.email;
     const displayInitial = displayName?.[0]?.toUpperCase() || '?';
 
     const handleLogout = () => {
