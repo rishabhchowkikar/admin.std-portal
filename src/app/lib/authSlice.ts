@@ -39,12 +39,35 @@ export interface TeacherSignupData {
     role: string;
 }
 
-// Initial state
-const initialState: AuthState = {
-    user: null,
-    loading: false,
-    error: null,
+// Helper function to get initial state from localStorage
+const getInitialState = (): AuthState => {
+    if (typeof window === 'undefined') {
+        return {
+            user: null,
+            loading: false,
+            error: null,
+        };
+    }
+
+    try {
+        const persistedUser = localStorage.getItem('user');
+        return {
+            user: persistedUser ? JSON.parse(persistedUser) : null,
+            loading: false,
+            error: null,
+        };
+    } catch (error) {
+        console.error('Error reading from localStorage:', error);
+        return {
+            user: null,
+            loading: false,
+            error: null,
+        };
+    }
 };
+
+// Initial state
+const initialState: AuthState = getInitialState();
 
 // Async thunk for teacher signup
 export const signupTeacher = createAsyncThunk<
@@ -80,6 +103,8 @@ export const loginUser = createAsyncThunk<
             email: values.email,
             password: values.password,
         });
+        // Store user data in localStorage
+        localStorage.setItem('user', JSON.stringify(res.data.data));
         return res.data;
     } catch (err: any) {
         return thunkAPI.rejectWithValue(
@@ -96,9 +121,18 @@ const authSlice = createSlice({
         logout: (state) => {
             state.user = null;
             state.error = null;
+            // Clear localStorage on logout
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('user');
+            }
         },
         clearError: (state) => {
             state.error = null;
+        },
+        // Add a reducer to restore auth state
+        restoreAuth: (state) => {
+            const persistedState = getInitialState();
+            state.user = persistedState.user;
         },
     },
     extraReducers: (builder) => {
@@ -133,5 +167,5 @@ const authSlice = createSlice({
     },
 });
 
-export const { logout, clearError } = authSlice.actions;
+export const { logout, clearError, restoreAuth } = authSlice.actions;
 export default authSlice.reducer; 
