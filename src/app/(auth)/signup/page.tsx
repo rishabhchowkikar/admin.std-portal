@@ -1,5 +1,11 @@
-import AuthForm from "@/components/AuthForm";
+'use client';
+
+import TeacherSignupForm from '@/components/TeacherSignupForm';
 
 export default function SignupPage() {
-    return <AuthForm mode="signup" />;
+    return (
+        <div className="min-h-screen flex flex-col justify-center">
+            <TeacherSignupForm />
+        </div>
+    );
 }
