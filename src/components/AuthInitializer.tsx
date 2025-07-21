@@ -1,22 +1,28 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from '@/app/lib/hook';
-import { restoreAuth, checkAuth } from '@/app/lib/authSlice';
+import { useAppDispatch } from '@/app/lib/hook';
+import { checkAuth } from '@/app/lib/authSlice';
 
 export default function AuthInitializer() {
     const dispatch = useAppDispatch();
-    const { isInitialized } = useAppSelector((state) => state.auth);
 
     useEffect(() => {
-        if (!isInitialized) {
-            // First try to restore from localStorage
-            dispatch(restoreAuth());
-
-            // Then verify with the server
+        // Check auth status on mount and after any window focus
+        const checkAuthStatus = () => {
             dispatch(checkAuth());
-        }
-    }, [dispatch, isInitialized]);
+        };
 
-    return null; // This component doesn't render anything
+        // Initial check
+        checkAuthStatus();
+
+        // Re-check auth when window gains focus
+        window.addEventListener('focus', checkAuthStatus);
+
+        return () => {
+            window.removeEventListener('focus', checkAuthStatus);
+        };
+    }, [dispatch]);
+
+    return null;
 } 
