@@ -18,8 +18,9 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAppDispatch } from '@/app/lib/hook';
-import { logout } from '@/app/lib/authSlice';
+import { logoutUser, isTeacher, isAdmin } from '@/app/lib/authSlice';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 // Navigation items configuration
 const teacherNavItems = [
@@ -88,18 +89,29 @@ export default function Sidebar() {
     const pathname = usePathname();
     const dispatch = useAppDispatch();
     const router = useRouter();
-    const { user } = useAppSelector((state) => state.auth);
+    const { user, loading } = useAppSelector((state) => state.auth);
 
     // Select navigation items based on user role
-    const navItems = user?.role === 'admin' ? adminNavItems : teacherNavItems;
+    const navItems = isAdmin(user) ? adminNavItems : teacherNavItems;
 
     // Get display name based on user type
-    const displayName = user?.role === 'teacher' ? (user as any).name : user?.email;
+    const displayName = isTeacher(user) ? user.name : user?.email;
     const displayInitial = displayName?.[0]?.toUpperCase() || '?';
 
-    const handleLogout = () => {
-        dispatch(logout());
-        router.push('/login');
+    const handleLogout = async () => {
+        try {
+            const result = await dispatch(logoutUser()).unwrap();
+            if (result.status) {
+                toast.success(result.message || 'Logged out successfully');
+                router.push('/login');
+            } else {
+                toast.error(result.message || 'Logout failed');
+            }
+        } catch (error: any) {
+            toast.error(error.message || 'Logout failed');
+            // Still redirect to login on failure since we've cleared the state
+            router.push('/login');
+        }
     };
 
     return (
@@ -182,9 +194,14 @@ export default function Sidebar() {
                         variant="ghost"
                         size="icon"
                         onClick={handleLogout}
-                        className="text-gray-500 hover:text-red-600"
+                        disabled={loading}
+                        className="text-gray-500 hover:text-red-600 relative"
                     >
-                        <LogOut className="h-5 w-5" />
+                        {loading ? (
+                            <div className="animate-spin h-5 w-5 border-2 border-red-600 border-t-transparent rounded-full" />
+                        ) : (
+                            <LogOut className="h-5 w-5" />
+                        )}
                     </Button>
                 </div>
             </div>

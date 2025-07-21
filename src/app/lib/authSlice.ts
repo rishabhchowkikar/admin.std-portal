@@ -21,6 +21,18 @@ type TeacherData = {
     __v: number;
 };
 
+// API Response types
+interface AuthResponse {
+    data: AdminData | TeacherData;
+    status: boolean;
+    message: string;
+}
+
+interface LogoutResponse {
+    message: string;
+    status: boolean;
+}
+
 export type RoleOption = 'admin' | 'teacher';
 type UserData = AdminData | TeacherData | null;
 
@@ -28,69 +40,44 @@ interface AuthState {
     user: UserData;
     loading: boolean;
     error: string | null;
+    isInitialized: boolean;
 }
-
-// Teacher signup payload type
-export interface TeacherSignupData {
-    name: string;
-    email: string;
-    password: string;
-    department: string;
-    role: string;
-}
-
-// Helper function to get initial state from localStorage
-const getInitialState = (): AuthState => {
-    if (typeof window === 'undefined') {
-        return {
-            user: null,
-            loading: false,
-            error: null,
-        };
-    }
-
-    try {
-        const persistedUser = localStorage.getItem('user');
-        return {
-            user: persistedUser ? JSON.parse(persistedUser) : null,
-            loading: false,
-            error: null,
-        };
-    } catch (error) {
-        console.error('Error reading from localStorage:', error);
-        return {
-            user: null,
-            loading: false,
-            error: null,
-        };
-    }
-};
 
 // Initial state
-const initialState: AuthState = getInitialState();
+const initialState: AuthState = {
+    user: null,
+    loading: true,
+    error: null,
+    isInitialized: false
+};
 
-// Async thunk for teacher signup
-export const signupTeacher = createAsyncThunk<
-    { data: TeacherData },
-    TeacherSignupData,
+// Check auth status thunk
+export const checkAuth = createAsyncThunk<
+    AuthResponse,
+    void,
     { rejectValue: string }
->('auth/signupTeacher', async (values, thunkAPI) => {
+>('auth/checkAuth', async (_, thunkAPI) => {
     try {
-        const res = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/auth/teacher/sign-up`,
-            values
+        const response = await axios.get<AuthResponse>(
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/check-auth`,
+            { withCredentials: true }
         );
-        return res.data;
+
+        if (!response.data.data || !response.data.status) {
+            throw new Error('Invalid response structure');
+        }
+
+        return response.data;
     } catch (err: any) {
         return thunkAPI.rejectWithValue(
-            err.response?.data?.message || 'Registration failed'
+            err.response?.data?.message || 'Authentication failed'
         );
     }
 });
 
-// Async thunk for login
+// Login thunk
 export const loginUser = createAsyncThunk<
-    { data: AdminData | TeacherData },
+    AuthResponse,
     { email: string; password: string; role: RoleOption },
     { rejectValue: string }
 >('auth/loginUser', async (values, thunkAPI) => {
@@ -99,16 +86,40 @@ export const loginUser = createAsyncThunk<
         : `${process.env.NEXT_PUBLIC_API_URL}/auth/teacher/login`;
 
     try {
-        const res = await axios.post(url, {
+        const res = await axios.post<AuthResponse>(url, {
             email: values.email,
             password: values.password,
-        });
-        // Store user data in localStorage
-        localStorage.setItem('user', JSON.stringify(res.data.data));
+        }, { withCredentials: true });
+
+        if (!res.data.data || !res.data.status) {
+            throw new Error('Invalid response structure');
+        }
+
         return res.data;
     } catch (err: any) {
         return thunkAPI.rejectWithValue(
             err.response?.data?.message || 'Login failed'
+        );
+    }
+});
+
+// Logout thunk
+export const logoutUser = createAsyncThunk<
+    LogoutResponse,
+    void,
+    { rejectValue: string }
+>('auth/logoutUser', async (_, thunkAPI) => {
+    try {
+        const response = await axios.post<LogoutResponse>(
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/logout`,
+            {},
+            { withCredentials: true }
+        );
+
+        return response.data;
+    } catch (err: any) {
+        return thunkAPI.rejectWithValue(
+            err.response?.data?.message || 'Logout failed'
         );
     }
 });
@@ -118,54 +129,73 @@ const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        logout: (state) => {
-            state.user = null;
-            state.error = null;
-            // Clear localStorage on logout
-            if (typeof window !== 'undefined') {
-                localStorage.removeItem('user');
-            }
-        },
         clearError: (state) => {
             state.error = null;
-        },
-        // Add a reducer to restore auth state
-        restoreAuth: (state) => {
-            const persistedState = getInitialState();
-            state.user = persistedState.user;
         },
     },
     extraReducers: (builder) => {
         builder
+            // Check Auth cases
+            .addCase(checkAuth.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(checkAuth.fulfilled, (state, action) => {
+                state.loading = false;
+                state.user = action.payload.data;
+                state.error = null;
+                state.isInitialized = true;
+            })
+            .addCase(checkAuth.rejected, (state, action) => {
+                state.loading = false;
+                state.user = null;
+                state.error = action.payload as string;
+                state.isInitialized = true;
+            })
             // Login cases
             .addCase(loginUser.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(loginUser.fulfilled, (state, action: PayloadAction<{ data: UserData }>) => {
+            .addCase(loginUser.fulfilled, (state, action) => {
                 state.loading = false;
                 state.user = action.payload.data;
                 state.error = null;
+                state.isInitialized = true;
             })
             .addCase(loginUser.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;
+                state.user = null;
             })
-            // Signup cases
-            .addCase(signupTeacher.pending, (state) => {
+            // Logout cases
+            .addCase(logoutUser.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(signupTeacher.fulfilled, (state) => {
+            .addCase(logoutUser.fulfilled, (state) => {
                 state.loading = false;
+                state.user = null;
                 state.error = null;
+                state.isInitialized = true;
             })
-            .addCase(signupTeacher.rejected, (state, action) => {
+            .addCase(logoutUser.rejected, (state, action) => {
                 state.loading = false;
+                state.user = null;
                 state.error = action.payload as string;
+                state.isInitialized = true;
             });
     },
 });
 
-export const { logout, clearError, restoreAuth } = authSlice.actions;
+// Type guard functions
+export const isTeacher = (user: UserData): user is TeacherData => {
+    return user?.role === 'teacher';
+};
+
+export const isAdmin = (user: UserData): user is AdminData => {
+    return user?.role === 'admin';
+};
+
+export const { clearError } = authSlice.actions;
 export default authSlice.reducer; 
