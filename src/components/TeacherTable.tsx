@@ -7,7 +7,6 @@ import { fetchAllTeachers, TeachersApiError } from "@/utils/api/teacherApi";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,

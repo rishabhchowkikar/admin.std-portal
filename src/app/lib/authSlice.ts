@@ -21,6 +21,14 @@ type TeacherData = {
     __v: number;
 };
 
+interface TeacherSignupData {
+    name: string;
+    email: string;
+    password: string;
+    department: string;
+    role: string;
+}
+
 // API Response types
 interface AuthResponse {
     data: AdminData | TeacherData;
@@ -103,6 +111,31 @@ export const loginUser = createAsyncThunk<
     }
 });
 
+// Signup teacher thunk
+export const signupTeacher = createAsyncThunk<
+    AuthResponse,
+    TeacherSignupData,
+    { rejectValue: string }
+>('auth/signupTeacher', async (values, thunkAPI) => {
+    try {
+        const response = await axios.post<AuthResponse>(
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/teacher/signup`,
+            values,
+            { withCredentials: true }
+        );
+
+        if (!response.data.status) {
+            throw new Error(response.data.message);
+        }
+
+        return response.data;
+    } catch (err: any) {
+        return thunkAPI.rejectWithValue(
+            err.response?.data?.message || 'Signup failed'
+        );
+    }
+});
+
 // Logout thunk
 export const logoutUser = createAsyncThunk<
     LogoutResponse,
@@ -167,6 +200,19 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload as string;
                 state.user = null;
+            })
+            // Signup teacher cases
+            .addCase(signupTeacher.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(signupTeacher.fulfilled, (state, action) => {
+                state.loading = false;
+                state.error = null;
+            })
+            .addCase(signupTeacher.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload as string;
             })
             // Logout cases
             .addCase(logoutUser.pending, (state) => {
