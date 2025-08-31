@@ -32,9 +32,10 @@ interface CourseCardProps {
     onEdit?: (courseId: string) => void;
     onView?: (courseId: string) => void;
     onViewFaculty?: (courseId: string) => void;
+    onViewTimetable?: (courseId: string) => void;
 }
 
-export function CourseCard({ course, onEdit, onView, onViewFaculty }: CourseCardProps) {
+export function CourseCard({ course, onEdit, onView, onViewFaculty, onViewTimetable }: CourseCardProps) {
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         const now = new Date();
@@ -87,13 +88,13 @@ export function CourseCard({ course, onEdit, onView, onViewFaculty }: CourseCard
                                     </button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    <DropdownMenuItem onClick={() => onView?.(course._id)}>
-                                        <Calendar className="w-4 h-4" />
-                                        TimeTable
-                                    </DropdownMenuItem>
                                     <DropdownMenuItem onClick={() => onViewFaculty?.(course._id)}>
                                         <Users className="w-4 h-4" />
                                         View Faculty
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => onViewTimetable?.(course._id)}>
+                                        <Clock className="w-4 h-4" />
+                                        Timetable
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>

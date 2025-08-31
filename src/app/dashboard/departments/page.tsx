@@ -124,6 +124,10 @@ export default function CoursesPage() {
         router.push(`/dashboard/departments/faculty/${courseId}`);
     };
 
+    const handleViewTimetable = (courseId: string) => {
+        router.push(`/dashboard/departments/timetable?courseId=${courseId}`);
+    };
+
 
 
     if (loading && courses.length === 0) {
@@ -261,13 +265,14 @@ export default function CoursesPage() {
             ) : (
                 <div className="space-y-4">
                     {filteredCourses.map((course) => (
-                        <CourseCard
-                            key={course._id}
-                            course={course}
-                            onEdit={handleEditCourse}
-                            onView={handleViewCourse}
-                            onViewFaculty={handleViewFaculty}
-                        />
+                                    <CourseCard
+                key={course._id}
+                course={course}
+                onEdit={handleEditCourse}
+                onView={handleViewCourse}
+                onViewFaculty={handleViewFaculty}
+                onViewTimetable={handleViewTimetable}
+            />
                     ))}
                 </div>
             )}

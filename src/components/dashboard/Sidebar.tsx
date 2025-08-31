@@ -14,7 +14,8 @@ import {
     Settings,
     LogOut,
     ChevronLeft,
-    Menu
+    Menu,
+    School
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAppDispatch } from '@/app/lib/hook';
@@ -78,9 +79,9 @@ const adminNavItems = [
         icon: FileText
     },
     {
-        title: 'Settings',
-        href: '/dashboard/settings',
-        icon: Settings
+        title: 'Hostel',
+        href: '/dashboard/hostel',
+        icon: School
     }
 ];
 
