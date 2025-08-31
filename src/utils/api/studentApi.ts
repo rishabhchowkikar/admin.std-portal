@@ -232,3 +232,21 @@ export const getStudentsByDepartment = async (department: string): Promise<Stude
     student.courseId.department.toLowerCase().includes(department.toLowerCase())
   );
 };
+
+export const getStudentDetail = async (studentId: string): Promise<any> => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/auth/get-student-detail-admin/${studentId}`,
+      { withCredentials: true }
+    );
+    return response.data.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new StudentsApiError(
+        error.response?.data?.message || 'Failed to fetch student details',
+        error.response?.status
+      );
+    }
+    throw new StudentsApiError('Failed to fetch student details');
+  }
+};

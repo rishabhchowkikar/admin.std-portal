@@ -26,10 +26,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                     {children}
                 </div>
 
-                {/* Footer */}
-                <div className="absolute bottom-4 left-0 right-0 text-center text-sm text-gray-500">
-                    © {new Date().getFullYear()} Central University of Haryana. All rights reserved.
-                </div>
             </div>
 
             {/* Right Panel - Branding */}

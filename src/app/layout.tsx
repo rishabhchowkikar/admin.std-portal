@@ -33,7 +33,7 @@ export default function RootLayout({
         <ReduxProvider>
           <AuthInitializer />
           {children}
-          <Toaster />
+          <Toaster closeButton />
         </ReduxProvider>
       </body>
     </html>

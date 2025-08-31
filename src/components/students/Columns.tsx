@@ -5,13 +5,13 @@ import { Student } from "@/types/student";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { ArrowUpDown, MoreHorizontal, Mail, Phone, Eye, CheckCircle, XCircle, Settings } from "lucide-react";
 
@@ -101,7 +101,7 @@ export const createColumns = (onApprovalAction?: (student: Student) => void): Co
     cell: ({ row }) => {
       const category = row.getValue("category") as string;
       if (!category) return <span className="text-muted-foreground">-</span>;
-      
+
       const getCategoryVariant = (cat: string) => {
         switch (cat) {
           case "General": return "default";
@@ -111,7 +111,7 @@ export const createColumns = (onApprovalAction?: (student: Student) => void): Co
           default: return "secondary";
         }
       };
-      
+
       return <Badge variant={getCategoryVariant(category)}>{category}</Badge>;
     },
   },
@@ -121,7 +121,7 @@ export const createColumns = (onApprovalAction?: (student: Student) => void): Co
     cell: ({ row }) => {
       const hostelAllocated = row.getValue("hostel_allocated") as boolean;
       const wantToApply = row.original.want_to_apply_for_hostel;
-      
+
       return (
         <div className="flex flex-col gap-1">
           <Badge variant={hostelAllocated ? "default" : "secondary"}>
@@ -141,7 +141,7 @@ export const createColumns = (onApprovalAction?: (student: Student) => void): Co
     header: "Permission",
     cell: ({ row }) => {
       const status = row.getValue("updatePermissionStatus") as string;
-      
+
       const getStatusVariant = (status: string) => {
         switch (status) {
           case "approved": return "default";
@@ -150,7 +150,7 @@ export const createColumns = (onApprovalAction?: (student: Student) => void): Co
           default: return "outline";
         }
       };
-      
+
       return (
         <Badge variant={getStatusVariant(status)}>
           {status.charAt(0).toUpperCase() + status.slice(1)}
@@ -163,7 +163,7 @@ export const createColumns = (onApprovalAction?: (student: Student) => void): Co
     cell: ({ row }) => {
       const student = row.original;
       const hasPermissionRequest = student.updatePermissionStatus === 'requested';
-      
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -174,13 +174,18 @@ export const createColumns = (onApprovalAction?: (student: Student) => void): Co
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem
+            {/* <DropdownMenuItem
               onClick={() => navigator.clipboard.writeText(student._id)}
             >
               Copy student ID
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                // Navigate to student detail page
+                window.location.href = `/dashboard/students/${student._id}`;
+              }}
+            >
               <Eye className="mr-2 h-4 w-4" />
               View details
             </DropdownMenuItem>
