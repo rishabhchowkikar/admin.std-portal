@@ -3,6 +3,8 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useRouter } from 'next/navigation';
+
 // Update the path below to the correct relative path if needed
 import type { RootState, AppDispatch } from '@/app/lib/store';
 import { fetchCourses } from '@/app/lib/courseSlice';
@@ -11,10 +13,10 @@ import { CourseFilters } from '@/components/courses/CourseFilter';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
-    Plus, 
-    RefreshCw, 
-    AlertCircle, 
+import {
+    Plus,
+    RefreshCw,
+    AlertCircle,
     BookOpen,
     GraduationCap,
     Building2,
@@ -22,6 +24,7 @@ import {
 } from "lucide-react";
 
 export default function CoursesPage() {
+    const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
     const { courses, loading, error, lastFetched } = useSelector(
         (state: RootState) => state.courses
@@ -36,9 +39,9 @@ export default function CoursesPage() {
 
     useEffect(() => {
         // Fetch courses if not already loaded or if it's been more than 5 minutes
-        const shouldFetch = !courses.length || !lastFetched || 
+        const shouldFetch = !courses.length || !lastFetched ||
             (Date.now() - new Date(lastFetched).getTime()) > 5 * 60 * 1000;
-        
+
         if (shouldFetch) {
             dispatch(fetchCourses());
         }
@@ -52,15 +55,15 @@ export default function CoursesPage() {
     // Filter courses based on active filters
     const filteredCourses = useMemo(() => {
         return courses.filter(course => {
-            const matchesSearch = !filters.search || 
+            const matchesSearch = !filters.search ||
                 course.name.toLowerCase().includes(filters.search.toLowerCase()) ||
                 course.code.toLowerCase().includes(filters.search.toLowerCase()) ||
                 course.description.toLowerCase().includes(filters.search.toLowerCase());
 
-            const matchesDepartment = !filters.department || 
+            const matchesDepartment = !filters.department ||
                 course.department === filters.department;
 
-            const matchesStatus = !filters.status || 
+            const matchesStatus = !filters.status ||
                 (filters.status === 'active' ? course.isActive : !course.isActive);
 
             return matchesSearch && matchesDepartment && matchesStatus;
@@ -73,7 +76,7 @@ export default function CoursesPage() {
         const totalTeachers = new Set(
             courses.flatMap(c => c.assignedTeachers.map(t => t._id))
         ).size;
-        
+
         return {
             total: courses.length,
             active: activeCourses,
@@ -117,6 +120,12 @@ export default function CoursesPage() {
         console.log('View course:', courseId);
     };
 
+    const handleViewFaculty = (courseId: string) => {
+        router.push(`/dashboard/departments/faculty/${courseId}`);
+    };
+
+
+
     if (loading && courses.length === 0) {
         return <CoursesPageSkeleton />;
     }
@@ -128,9 +137,9 @@ export default function CoursesPage() {
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
                         Error loading courses: {error}
-                        <Button 
-                            variant="outline" 
-                            size="sm" 
+                        <Button
+                            variant="outline"
+                            size="sm"
                             className="ml-4"
                             onClick={handleRefresh}
                         >
@@ -157,8 +166,8 @@ export default function CoursesPage() {
                     </p>
                 </div>
                 <div className="flex gap-3">
-                    <Button 
-                        variant="outline" 
+                    <Button
+                        variant="outline"
                         onClick={handleRefresh}
                         disabled={loading}
                     >
@@ -183,7 +192,7 @@ export default function CoursesPage() {
                         </div>
                     </div>
                 </div>
-                
+
                 <div className="bg-gradient-to-r from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
                     <div className="flex items-center gap-3">
                         <GraduationCap className="h-8 w-8 text-green-600" />
@@ -193,8 +202,8 @@ export default function CoursesPage() {
                         </div>
                     </div>
                 </div>
-                
-                
+
+
                 <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
                     <div className="flex items-center gap-3">
                         <Building2 className="h-8 w-8 text-blue-600" />
@@ -204,7 +213,7 @@ export default function CoursesPage() {
                         </div>
                     </div>
                 </div>
-                
+
             </div>
 
             {/* Filters */}
@@ -223,9 +232,9 @@ export default function CoursesPage() {
                     Showing {filteredCourses.length} of {courses.length} courses
                 </p>
                 {filteredCourses.length !== courses.length && (
-                    <Button 
-                        variant="outline" 
-                        size="sm" 
+                    <Button
+                        variant="outline"
+                        size="sm"
                         onClick={handleClearFilters}
                     >
                         Show All Courses
@@ -235,32 +244,33 @@ export default function CoursesPage() {
 
             {/* Courses Grid */}
             {filteredCourses.length === 0 ? (
-    <div className="text-center py-12">
-        <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-lg font-semibold mb-2">No courses found</h3>
-        <p className="text-muted-foreground mb-4">
-            {courses.length === 0 
-                ? "No courses have been added yet." 
-                : "Try adjusting your filters to see more results."
-            }
-        </p>
-        <Button className="bg-purple-600 hover:bg-purple-700">
-            <Plus className="h-4 w-4 mr-2" />
-            Add First Course
-        </Button>
-    </div>
-) : (
-    <div className="space-y-4">
-        {filteredCourses.map((course) => (
-            <CourseCard
-                key={course._id}
-                course={course}
-                onEdit={handleEditCourse}
-                onView={handleViewCourse}
-            />
-        ))}
-    </div>
-)}
+                <div className="text-center py-12">
+                    <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No courses found</h3>
+                    <p className="text-muted-foreground mb-4">
+                        {courses.length === 0
+                            ? "No courses have been added yet."
+                            : "Try adjusting your filters to see more results."
+                        }
+                    </p>
+                    <Button className="bg-purple-600 hover:bg-purple-700">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add First Course
+                    </Button>
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    {filteredCourses.map((course) => (
+                        <CourseCard
+                            key={course._id}
+                            course={course}
+                            onEdit={handleEditCourse}
+                            onView={handleViewCourse}
+                            onViewFaculty={handleViewFaculty}
+                        />
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
@@ -279,15 +289,15 @@ function CoursesPageSkeleton() {
                     <Skeleton className="h-10 w-32" />
                 </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                 {Array.from({ length: 5 }).map((_, i) => (
                     <Skeleton key={i} className="h-20 w-full" />
                 ))}
             </div>
-            
+
             <Skeleton className="h-16 w-full" />
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {Array.from({ length: 6 }).map((_, i) => (
                     <div key={i} className="space-y-3">

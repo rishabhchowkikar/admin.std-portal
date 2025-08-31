@@ -17,6 +17,7 @@ import { RefreshCw, Users, AlertCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import ApprovalDialog from "./ApprovalDialog";
 
+
 const StudentsTableSkeleton = () => (
   <div className="space-y-4">
     <div className="flex justify-between items-center">

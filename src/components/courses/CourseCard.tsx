@@ -31,9 +31,10 @@ interface CourseCardProps {
     };
     onEdit?: (courseId: string) => void;
     onView?: (courseId: string) => void;
+    onViewFaculty?: (courseId: string) => void;
 }
 
-export function CourseCard({ course, onEdit, onView }: CourseCardProps) {
+export function CourseCard({ course, onEdit, onView, onViewFaculty }: CourseCardProps) {
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         const now = new Date();
@@ -86,9 +87,13 @@ export function CourseCard({ course, onEdit, onView }: CourseCardProps) {
                                     </button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                    {/* Keep these or remove from dropdown if you don't want any actions */}
                                     <DropdownMenuItem onClick={() => onView?.(course._id)}>
-                                        View Details
+                                        <Calendar className="w-4 h-4" />
+                                        TimeTable
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => onViewFaculty?.(course._id)}>
+                                        <Users className="w-4 h-4" />
+                                        View Faculty
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
