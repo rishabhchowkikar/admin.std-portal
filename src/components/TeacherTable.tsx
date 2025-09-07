@@ -15,10 +15,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { RefreshCw, Mail, User, AlertCircle } from "lucide-react";
+import { RefreshCw, Mail, User, AlertCircle, Eye } from "lucide-react";
 import { TeachersTableSkeleton } from "./TeacherTableSkeleton";
+import { useRouter } from "next/navigation";
 
 const TeachersTable = () => {
+  const router = useRouter();
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,6 +68,10 @@ const TeachersTable = () => {
       default:
         return "secondary" as const;
     }
+  };
+
+  const handleViewProfile = (teacherId: string) => {
+    router.push(`/dashboard/teachers/${teacherId}`);
   };
 
   // Show loading skeleton
@@ -133,6 +139,7 @@ const TeachersTable = () => {
               </TableHead>
               <TableHead className="font-semibold">Department</TableHead>
               <TableHead className="font-semibold">Role</TableHead>
+              <TableHead className="font-semibold text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -169,6 +176,16 @@ const TeachersTable = () => {
                     >
                       {teacher.role}
                     </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleViewProfile(teacher._id)}
+                      className="hover:bg-gray-100"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
