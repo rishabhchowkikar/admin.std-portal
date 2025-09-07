@@ -10,6 +10,7 @@ import type { RootState, AppDispatch } from '@/app/lib/store';
 import { fetchCourses } from '@/app/lib/courseSlice';
 import { CourseCard } from '@/components/courses/CourseCard';
 import { CourseFilters } from '@/components/courses/CourseFilter';
+import { AssignTeachersDialog } from '@/components/courses/AssignTeachersDialog';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -20,8 +21,8 @@ import {
     BookOpen,
     GraduationCap,
     Building2,
-    Users
 } from "lucide-react";
+import { Teacher } from '@/types/teacher';
 
 export default function CoursesPage() {
     const router = useRouter();
@@ -36,6 +37,14 @@ export default function CoursesPage() {
         department: null as string | null,
         status: null as string | null,
     });
+
+    // Assign teachers dialog state
+    const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+    const [selectedCourse, setSelectedCourse] = useState<{
+        id: string;
+        name: string;
+        assignedTeachers: Teacher[];
+    } | null>(null);
 
     useEffect(() => {
         // Fetch courses if not already loaded or if it's been more than 5 minutes
@@ -128,7 +137,27 @@ export default function CoursesPage() {
         router.push(`/dashboard/departments/timetable?courseId=${courseId}`);
     };
 
+    const handleAssignTeachers = (courseId: string) => {
+        const course = courses.find(c => c._id === courseId);
+        if (course) {
+            setSelectedCourse({
+                id: course._id,
+                name: course.name,
+                assignedTeachers: course.assignedTeachers as Teacher[]
+            });
+            setAssignDialogOpen(true);
+        }
+    };
 
+    const handleAssignSuccess = () => {
+        // Refresh courses data after successful assignment
+        dispatch(fetchCourses());
+    };
+
+    const handleCloseAssignDialog = () => {
+        setAssignDialogOpen(false);
+        setSelectedCourse(null);
+    };
 
     if (loading && courses.length === 0) {
         return <CoursesPageSkeleton />;
@@ -207,7 +236,6 @@ export default function CoursesPage() {
                     </div>
                 </div>
 
-
                 <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
                     <div className="flex items-center gap-3">
                         <Building2 className="h-8 w-8 text-blue-600" />
@@ -218,6 +246,15 @@ export default function CoursesPage() {
                     </div>
                 </div>
 
+                <div className="bg-gradient-to-r from-orange-50 to-orange-100 p-4 rounded-lg border border-orange-200">
+                    <div className="flex items-center gap-3">
+                        <Building2 className="h-8 w-8 text-orange-600" />
+                        <div>
+                            <p className="text-2xl font-bold text-orange-900">{stats.teachers}</p>
+                            <p className="text-sm text-orange-700">Assigned Teachers</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Filters */}
@@ -265,16 +302,29 @@ export default function CoursesPage() {
             ) : (
                 <div className="space-y-4">
                     {filteredCourses.map((course) => (
-                                    <CourseCard
-                key={course._id}
-                course={course}
-                onEdit={handleEditCourse}
-                onView={handleViewCourse}
-                onViewFaculty={handleViewFaculty}
-                onViewTimetable={handleViewTimetable}
-            />
+                        <CourseCard
+                            key={course._id}
+                            course={course}
+                            onEdit={handleEditCourse}
+                            onView={handleViewCourse}
+                            onViewFaculty={handleViewFaculty}
+                            onViewTimetable={handleViewTimetable}
+                            onAssignTeachers={handleAssignTeachers}
+                        />
                     ))}
                 </div>
+            )}
+
+            {/* Assign Teachers Dialog */}
+            {selectedCourse && (
+                <AssignTeachersDialog
+                    isOpen={assignDialogOpen}
+                    onClose={handleCloseAssignDialog}
+                    courseId={selectedCourse.id}
+                    courseName={selectedCourse.name}
+                    assignedTeachers={selectedCourse.assignedTeachers}
+                    onSuccess={handleAssignSuccess}
+                />
             )}
         </div>
     );

@@ -217,8 +217,8 @@ export default function TimetablePage() {
                         </Badge>
                     </div>
 
-                    {/* Simple Table Format */}
-                    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+                    {/* Main Timetable - Course Codes Only */}
+                    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm mb-8">
                         <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead className="bg-gray-50 border-b border-gray-200">
@@ -253,35 +253,14 @@ export default function TimetablePage() {
                                             {currentTimetable.schedule.map((daySchedule) => {
                                                 const period = daySchedule.periods.find(p => p.time === time);
                                                 return (
-                                                    <td key={`${daySchedule.day}-${time}`} className="px-6 py-4">
+                                                    <td key={`${daySchedule.day}-${time}`} className="px-6 py-4 text-left">
                                                         {period ? (
-                                                            <div className="space-y-2">
-                                                                <div className="flex items-start gap-2">
-                                                                    <BookOpen className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                                                                    <div className="min-w-0 flex-1">
-                                                                        <h4 className="text-sm font-semibold text-gray-900 leading-tight">
-                                                                            {period.subjectId.name}
-                                                                        </h4>
-                                                                        <p className="text-xs text-blue-600 font-mono mt-1">
-                                                                            {period.subjectId.code}
-                                                                        </p>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="flex items-start gap-2">
-                                                                    <Users className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                                                                    <div className="min-w-0 flex-1">
-                                                                        <p className="text-xs font-medium text-gray-700">
-                                                                            {period.subjectId.teacherId.name}
-                                                                        </p>
-                                                                        <p className="text-xs text-gray-500">
-                                                                            {period.subjectId.teacherId.department}
-                                                                        </p>
-                                                                    </div>
-                                                                </div>
+                                                            <div className="text-base font-normal text-blue-600 font-mono">
+                                                                {period.subjectId.code}
                                                             </div>
                                                         ) : (
                                                             <div className="text-gray-400 text-sm italic">
-                                                                No class
+                                                                -
                                                             </div>
                                                         )}
                                                     </td>
@@ -293,6 +272,69 @@ export default function TimetablePage() {
                             </table>
                         </div>
                     </div>
+
+                    {/* Course Code Reference Table */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <BookOpen className="h-5 w-5" />
+                                Course Reference
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead className="bg-gray-50 border-b border-gray-200">
+                                            <tr>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+                                                    Course Code
+                                                </th>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+                                                    Subject Name
+                                                </th>
+                                                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-900">
+                                                    Teacher
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-200">
+                                            {(() => {
+                                                // Get unique subjects from the timetable
+                                                const uniqueSubjects = new Map();
+                                                currentTimetable.schedule.forEach(day => {
+                                                    day.periods.forEach(period => {
+                                                        if (period.subjectId) {
+                                                            uniqueSubjects.set(period.subjectId.code, {
+                                                                code: period.subjectId.code,
+                                                                name: period.subjectId.name,
+                                                                teacher: period.subjectId.teacherId.name,
+                                                            });
+                                                        }
+                                                    });
+                                                });
+                                                return Array.from(uniqueSubjects.values()).sort((a, b) => a.code.localeCompare(b.code));
+                                            })().map((subject) => (
+                                                <tr key={subject.code} className="hover:bg-gray-50">
+                                                    <td className="px-6 py-3">
+                                                        <Badge variant="outline" className="font-mono text-blue-600 border-blue-200">
+                                                            {subject.code}
+                                                        </Badge>
+                                                    </td>
+                                                    <td className="px-6 py-3 text-sm font-medium text-gray-900">
+                                                        {subject.name}
+                                                    </td>
+                                                    <td className="px-6 py-3 text-sm text-gray-700">
+                                                        {subject.teacher}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
             ) : (
                 /* Empty State */

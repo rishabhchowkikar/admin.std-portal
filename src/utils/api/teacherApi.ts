@@ -92,3 +92,102 @@ export const getTeachersByRole = async (role: string): Promise<Teacher[]> => {
     teacher.role.toLowerCase().includes(role.toLowerCase())
   );
 };
+
+
+// src/utils/api/teacherApi.ts
+// ... existing code ...
+
+export interface TeacherProfile {
+  basicInfo: {
+    _id: string;
+    name: string;
+    email: string;
+    department: string;
+    role: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+  assignedCourse: {
+    _id: string;
+    name: string;
+    code: string;
+    department: string;
+    school: string;
+    duration: number;
+    totalSemesters: number;
+  };
+  teachingStats: {
+    totalSubjects: number;
+    semestersTeaching: number;
+    coursesInvolved: number;
+  };
+  subjectsBySemester: {
+    [key: string]: {
+      _id: string;
+      name: string;
+      code: string;
+      course: {
+        _id: string;
+        name: string;
+        code: string;
+        department: string;
+      };
+    }[];
+  };
+  semesterDetails: Array<{
+    semester: number;
+    courseName: string;
+    courseCode: string;
+    subjects: Array<{
+      _id: string;
+      name: string;
+      code: string;
+      course: {
+        _id: string;
+        name: string;
+        code: string;
+        department: string;
+      };
+    }>;
+    timetablePeriods: Array<{
+      day: string;
+      time: string;
+      subject: {
+        name: string;
+        code: string;
+      };
+    }>;
+    totalPeriods: number;
+  }>;
+  allSubjects: Array<{
+    _id: string;
+    name: string;
+    code: string;
+    semester: number;
+    course: {
+      _id: string;
+      name: string;
+      code: string;
+      department: string;
+    };
+  }>;
+  viewMode: string;
+}
+
+export const fetchTeacherProfile = async (teacherId: string): Promise<TeacherProfile> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/teacher/profile/${teacherId}`,{credentials: 'include'});
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new TeachersApiError(data.message || 'Failed to fetch teacher profile');
+    }
+
+    return data.data;
+  } catch (error) {
+    if (error instanceof TeachersApiError) {
+      throw error;
+    }
+    throw new TeachersApiError('Failed to fetch teacher profile');
+  }
+};

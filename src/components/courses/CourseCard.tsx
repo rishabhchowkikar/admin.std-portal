@@ -1,12 +1,15 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
-import { Building2, Clock, BookOpen, Users, GraduationCap, Calendar, MoreHorizontal } from "lucide-react";
+import { Building2, Clock, BookOpen, Users, GraduationCap, Calendar, MoreHorizontal,NotebookPen, UserPlus } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { useRouter } from "next/navigation";
+import { AssignSubjectsDrawer } from "./AssignSubjectsDrawer";
+import { useState } from "react";
 
 interface Teacher {
     _id: string;
@@ -33,21 +36,22 @@ interface CourseCardProps {
     onView?: (courseId: string) => void;
     onViewFaculty?: (courseId: string) => void;
     onViewTimetable?: (courseId: string) => void;
+    onAssignTeachers?: (courseId: string) => void;
 }
 
-export function CourseCard({ course, onEdit, onView, onViewFaculty, onViewTimetable }: CourseCardProps) {
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        const now = new Date();
-        const diffTime = Math.abs(now.getTime() - date.getTime());
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        if (diffDays < 30) return `${diffDays} days ago`;
-        if (diffDays < 60) return '1 month ago';
-        const months = Math.floor(diffDays / 30);
-        return `${months} months ago`;
+export function CourseCard({ course, onEdit, onView, onViewFaculty, onViewTimetable, onAssignTeachers }: CourseCardProps) {
+    const router = useRouter();
+    const [isAssignSubjectsOpen, setIsAssignSubjectsOpen] = useState(false);
+
+    const handleAssignTeachers = () => {
+        router.push(`/dashboard/departments/assignedteachers/${course._id}`);
     };
 
+    const handleAssignSubjects = () => {
+        router.push(`/dashboard/departments/assignsubjects/${course._id}`);
+    };
     return (
+        <>
         <Card className="w-full group transition-all duration-200 hover:shadow-lg hover:shadow-purple-100 border-l-4 border-l-purple-500 gap-0">
             {/* TOP ROW */}
             <CardHeader className="pb-0">
@@ -96,6 +100,14 @@ export function CourseCard({ course, onEdit, onView, onViewFaculty, onViewTimeta
                                         <Clock className="w-4 h-4" />
                                         Timetable
                                     </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={handleAssignTeachers}>
+                                        <UserPlus className="w-4 h-4" />
+                                        Assign Teachers to Course
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={handleAssignSubjects}>
+                                        <UserPlus className="w-4 h-4" />
+                                        Assign Subjects To Teachers
+                                    </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
                         </div>
@@ -137,17 +149,18 @@ export function CourseCard({ course, onEdit, onView, onViewFaculty, onViewTimeta
             {/* SECOND ROW: Only Department and Updated */}
             <CardContent className="">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-y-4 gap-x-6">
-
                     <div className="flex items-center flex-nowrap bg-gray-50 rounded-xl px-6 py-3">
                         <GraduationCap className="h-6 w-6 text-gray-600 mr-3" />
                         <span className="font-medium text-lg text-gray-900">{course.department}</span>
                     </div>
-                    {/* <div className="flex items-center gap-2 text-muted-foreground text-base">
-                        <Calendar className="h-5 w-5" />
-                        <span>Updated {formatDate(course.updatedAt)}</span>
-                    </div> */}
                 </div>
             </CardContent>
         </Card>
+        <AssignSubjectsDrawer
+                isOpen={isAssignSubjectsOpen}
+                onClose={() => setIsAssignSubjectsOpen(false)}
+                courseId={course._id}
+            />
+        </>
     );
 }
