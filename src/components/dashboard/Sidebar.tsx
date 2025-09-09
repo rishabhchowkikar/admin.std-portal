@@ -15,7 +15,8 @@ import {
     LogOut,
     ChevronLeft,
     Menu,
-    School
+    School,
+    IndianRupee
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAppDispatch } from '@/app/lib/hook';
@@ -82,6 +83,11 @@ const adminNavItems = [
         title: 'Hostel',
         href: '/dashboard/hostel',
         icon: School
+    },
+    {
+        title: 'Finance',
+        href: '/dashboard/finance',
+        icon: IndianRupee
     }
 ];
 
