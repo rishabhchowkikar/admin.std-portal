@@ -145,3 +145,11 @@ export const assignTeachersToCourse = async (data: AssignTeachersRequest): Promi
     }
 };
 
+export const assignSubjectToTeacher = async (subjectId:string, teacherId:string) =>{
+    try {
+        const response = await axios.put(`${API_BASE_URL}/academics/subject/${subjectId}`, { teacherId }, { withCredentials: true });
+        return response.data;
+    } catch (error:any) {
+        throw new Error(error.response?.data?.message || 'Failed to assign subject to teacher');
+    }
+}

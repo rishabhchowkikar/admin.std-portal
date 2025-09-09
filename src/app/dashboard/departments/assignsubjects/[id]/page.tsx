@@ -18,7 +18,7 @@ import {
     UserPlus,
     Link
 } from 'lucide-react';
-import { getCourseSubjects, getCourseData } from '@/utils/api/courseApi';
+import { getCourseSubjects, getCourseData,assignSubjectToTeacher } from '@/utils/api/courseApi';
 import { toast } from 'sonner';
 
 export default function AssignSubjectsPage() {
@@ -96,19 +96,27 @@ export default function AssignSubjectsPage() {
 
         try {
             setAssigning(true);
-            // TODO: Implement API call to assign subject to teacher
+            
             console.log('Assigning subject:', selectedSubject, 'to teacher:', selectedTeacher);
-            toast.success('Subject assigned successfully');
             
-            // Reset selections
-            setSelectedSubject('');
-            setSelectedTeacher('');
+            // Call the API to assign subject to teacher
+            const response = await assignSubjectToTeacher(selectedSubject, selectedTeacher);
             
-            // Reload data
-            await loadSubjects();
+            if (response.status) {
+                toast.success('Subject assigned successfully');
+                
+                // Reset selections
+                setSelectedSubject('');
+                setSelectedTeacher('');
+                
+                // Reload data to show updated assignments
+                await loadSubjects();
+            } else {
+                throw new Error(response.message || 'Assignment failed');
+            }
         } catch (error: any) {
             console.error('Assignment error:', error);
-            toast.error('Failed to assign subject');
+            toast.error(error.message || 'Failed to assign subject');
         } finally {
             setAssigning(false);
         }
