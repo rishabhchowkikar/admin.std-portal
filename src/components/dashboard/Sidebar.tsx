@@ -16,7 +16,9 @@ import {
     ChevronLeft,
     Menu,
     School,
-    IndianRupee
+    IndianRupee,
+    Newspaper,
+    NotebookPen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAppDispatch } from '@/app/lib/hook';
@@ -88,6 +90,21 @@ const adminNavItems = [
         title: 'Finance',
         href: '/dashboard/finance',
         icon: IndianRupee
+    },
+    {
+        title: 'Exam',
+        href: '/dashboard/exam',
+        icon: Newspaper
+    },
+    {
+        title: 'Marks',
+        href: '/dashboard/marks',
+        icon: FileText
+    },
+    {
+        title: 'Attendance',
+        href: '/dashboard/attendance',
+        icon: NotebookPen
     }
 ];
 
