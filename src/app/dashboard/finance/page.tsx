@@ -299,6 +299,7 @@ export default function FinancePage() {
               loading={loading.hostelPayments}
               onViewDetails={handleViewPaymentDetails}
               selectedYear={selectedYear}
+              showStudentDetails={true}
             />
           )}
         </>
