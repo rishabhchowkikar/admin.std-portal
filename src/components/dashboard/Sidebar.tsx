@@ -25,6 +25,7 @@ import { useAppDispatch } from '@/app/lib/hook';
 import { logoutUser, isTeacher, isAdmin } from '@/app/lib/authSlice';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import Image from 'next/image';
 
 // Navigation items configuration
 const teacherNavItems = [
@@ -150,11 +151,7 @@ export default function Sidebar() {
                 {!collapsed && (
                     <div className="flex items-center gap-2">
                         <div className="w-8 h-8">
-                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full text-purple-600">
-                                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
+                            <Image src={`/Central_University_of_Haryana_logo.png`} alt="CUH logo" width={500} height={500} />
                         </div>
                         <span className="text-xl font-semibold">CUH Portal</span>
                     </div>

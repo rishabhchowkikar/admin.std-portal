@@ -4,6 +4,7 @@ import LoginForm from '@/components/LoginForm';
 import { useAppSelector } from '@/app/lib/hook';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { LockKeyhole, User2 } from 'lucide-react';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -33,9 +34,26 @@ export default function LoginPage() {
         return (
             <div className="min-h-screen flex flex-col justify-center">
                 <LoginForm />
+                <small className="flex flex-col justify-center items-center mx-6 p-4 bg-purple-100 rounded-xl text-sm">
+                    <h5 className="text-base font-semibold text-gray-800 mb-2">
+                        Dummy Admin Credentials
+                    </h5>
+                    <ul className="space-y-2">
+                        <li className="flex items-center gap-3">
+                            <User2 size={20} className="text-purple-600" />
+                            <p className="font-mono text-black">admin@university.com</p>
+                        </li>
+                        <li className="flex items-center gap-3">
+                            <LockKeyhole size={20} className="text-purple-600" />
+                            <p className="font-mono text-black">Admin123</p>
+                        </li>
+                    </ul>
+                </small>
+
             </div>
+
         );
     }
 
-    return null; // This will never render as we redirect authenticated users
+    return null;
 }
