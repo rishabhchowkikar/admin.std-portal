@@ -49,6 +49,7 @@ export default function LoginPage() {
                         </li>
                     </ul>
                 </small>
+                    <p className='p-2 mt-2 bg-purple-100 rounded-xl text-xs text-center'>Teacher Routes are unavailable for now: Thank you</p>
 
             </div>
 

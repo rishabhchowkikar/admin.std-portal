@@ -67,7 +67,7 @@ export const checkAuth = createAsyncThunk<
 >('auth/checkAuth', async (_, thunkAPI) => {
     try {
         const response = await axios.get<AuthResponse>(
-            `${process.env.NEXT_PUBLIC_API_URL}/auth/check-auth`,
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/check-auth-admin`,
             { withCredentials: true }
         );
 
