@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CUH Portal",
-  description: "Central University of Haryana Student Management Portal",
+  title: "CUH Admin Portal",
+  description: "Central University of Haryana Admin Management Portal - Management Only",
 };
 
 export default function RootLayout({
